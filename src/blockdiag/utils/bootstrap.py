@@ -23,7 +23,7 @@ from optparse import SUPPRESS_HELP, OptionParser
 from blockdiag import imagedraw, plugins
 from blockdiag.utils import images
 from blockdiag.utils.config import ConfigParser
-from blockdiag.utils.fontmap import FontMap, parse_fontpath
+from blockdiag.utils.fontmap import FontMap, is_webfont, parse_fontpath
 from blockdiag.utils.logging import error, warning
 
 
@@ -278,6 +278,9 @@ def detectfont(options):
     fontpath = None
     if options.font:
         for path in options.font:
+            if is_webfont(path):
+                fontpath = path
+                break
             _path, _ = parse_fontpath(path)
             if os.path.isfile(_path):
                 fontpath = path
@@ -300,10 +303,14 @@ def detectfont(options):
 
 def create_fontmap(options):
     fontmap = FontMap(options.fontmap)
+
     if fontmap.find().path is None or options.font:
         fontpath = detectfont(options)
-        if options.fontfamily:
-            fontmap.set_default_fontfamily(options.fontfamily)
-        fontmap.set_default_font(fontpath)
+        if is_webfont(fontpath):
+            fontmap.configure_webfont(options.fontfamily, fontpath)
+        else:
+            if options.fontfamily:
+                fontmap.set_default_fontfamily(options.fontfamily)
+            fontmap.set_default_font(fontpath)
 
     return fontmap

@@ -22,10 +22,12 @@ from PIL.Image import Image
 from blockdiag.imagedraw import base as _base
 from blockdiag.imagedraw.simplesvg import (a, defs, desc, ellipse, filter, g,
                                            image, path, pathdata, polygon,
-                                           rect, svg, svgclass, text, title)
+                                           rect, style, svg, svgclass, text,
+                                           title)
 from blockdiag.imagedraw.utils import memoize
 from blockdiag.imagedraw.utils.ellipse import endpoints as ellipse_endpoints
 from blockdiag.utils import XY, Box, images, is_Pillow_available
+from blockdiag.utils.fontmap import is_webfont
 
 feGaussianBlur = svgclass('feGaussianBlur')
 
@@ -108,7 +110,7 @@ class SVGImageDrawElement(_base.ImageDraw):
 
     @memoize
     def textlinesize(self, string, font, **kwargs):
-        if is_Pillow_available():
+        if not is_webfont(font.path) and is_Pillow_available():
             if not hasattr(self, '_pil_drawer'):
                 from blockdiag.imagedraw import png
                 self._pil_drawer = png.ImageDrawEx(None)
@@ -297,6 +299,10 @@ class SVGImageDraw(SVGImageDrawElement):
 
         self.svg.addElement(title('blockdiag'))
         self.svg.addElement(desc(self.options.get('code')))
+        fontmap = self.options.get("fontmap")
+        if fontmap and fontmap.using_webfont:
+            font = self.options.get("fontmap").find()
+            self.svg.addElement(style(font.path))
 
     def save(self, filename, size, _format):
         # Ignore format parameter; compatibility for ImageDrawEx.

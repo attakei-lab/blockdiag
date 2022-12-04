@@ -75,6 +75,10 @@ def testcase_generator(basepath, mainfunc, files, options):
     for source in files:
         yield generate, mainfunc, 'svg', source, options
 
+        webfont_options = ['-f', 'http://example.com'] + options + \
+                          ['--fontfamily', 'example']
+        yield generate, mainfunc, 'svg', source, webfont_options
+
         if not supported_pil():
             yield unittest.skip("Pillow is not available")(generate)
             yield unittest.skip("Pillow is not available")(generate)

@@ -120,6 +120,12 @@ class desc(base):
         super(desc, self).__init__(text=_title)
 
 
+class style(base):
+    def __init__(self, url):
+        text = "@import url('%s');" % (url,)
+        super(style, self).__init__(text=text)
+
+
 class text(element):
     def __init__(self, x, y, _text, **kwargs):
         super(text, self).__init__(x, y, text=_text, **kwargs)

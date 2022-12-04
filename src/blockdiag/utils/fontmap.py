@@ -22,6 +22,12 @@ from blockdiag.utils.config import ConfigParser
 from blockdiag.utils.logging import warning
 
 
+def is_webfont(path):
+    if path is None:
+        return False
+    return path.startswith('https://') or path.startswith('http://')
+
+
 def parse_fontpath(path):
     if path is None:
         return (None, None)
@@ -31,6 +37,11 @@ def parse_fontpath(path):
         return (match.group(1), int(match.group(2)))
     else:
         return (path, None)
+
+
+def parse_webfont_family(familyspec):
+    # TODO: Parse combined fontfamily included style and weight
+    return [familyspec, familyspec, 'normal', 'normal']
 
 
 class FontInfo(object):
@@ -66,6 +77,9 @@ class FontInfo(object):
             return "%s%s-%s" % (name, generic_family, self.style)
 
     def _parse(self, familyname):
+        if is_webfont(self.path):
+            return parse_webfont_family(familyname)
+
         pattern = '^(?:(.*)-)?' + \
                   '(serif|sansserif|monospace|fantasy|cursive)' + \
                   '(?:-(normal|bold|italic|oblique))?$'
@@ -102,6 +116,7 @@ class FontMap(object):
     BASE_FONTSIZE = 11
     fontsize = BASE_FONTSIZE
     default_fontfamily = 'sansserif'
+    using_webfont = False
 
     def __init__(self, filename=None):
         self.fonts = {}
@@ -152,6 +167,9 @@ class FontMap(object):
         return FontInfo(name, None, self.BASE_FONTSIZE).familyname.lower()
 
     def find(self, element=None):
+        if self.using_webfont:
+            return self.aliases.get('webfont', None)
+
         fontfamily = getattr(element, 'fontfamily', None) or \
             self.default_fontfamily
         fontfamily = self.aliases.get(fontfamily, fontfamily)
@@ -169,3 +187,9 @@ class FontMap(object):
             font = None
 
         return font
+
+    def configure_webfont(self, fontfamily, path):
+        self.using_webfont = True
+        font = FontInfo(fontfamily, path, self.fontsize)
+        self.aliases['webfont'] = font
+        self.default_fontfamily = font.name
