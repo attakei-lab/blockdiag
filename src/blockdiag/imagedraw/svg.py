@@ -37,7 +37,7 @@ def rgb(color):
     return color
 
 
-def style(name):
+def filterstyle(name):
     if name == 'blur':
         value = "filter:url(#filter_blur)"
     elif name == 'transp-blur':
@@ -75,7 +75,7 @@ def drawing_params(kwargs):
                                                kwargs.get('thick'))
 
     if 'filter' in kwargs:
-        params['style'] = style(kwargs.get('filter'))
+        params['style'] = filterstyle(kwargs.get('filter'))
 
     return params
 
