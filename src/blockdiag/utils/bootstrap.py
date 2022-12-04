@@ -145,6 +145,9 @@ class Options(object):
                      help='write diagram to FILE', metavar='FILE')
         p.add_option('-f', '--font', default=[], action='append',
                      help='use FONT to draw diagram', metavar='FONT')
+        p.add_option('--fontfamily', default='sansserif',
+                     help='use FONTFAMILY to draw diagram',
+                     metavar='FONTFAMILY')
         p.add_option('--fontmap',
                      help='use FONTMAP file to draw diagram', metavar='FONT')
         p.add_option('--ignore-pil', dest='ignore_pil',
@@ -299,6 +302,8 @@ def create_fontmap(options):
     fontmap = FontMap(options.fontmap)
     if fontmap.find().path is None or options.font:
         fontpath = detectfont(options)
+        if options.fontfamily:
+            fontmap.set_default_fontfamily(options.fontfamily)
         fontmap.set_default_font(fontpath)
 
     return fontmap

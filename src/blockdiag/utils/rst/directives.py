@@ -29,6 +29,7 @@ from blockdiag.utils.rst.nodes import blockdiag as blockdiag_node
 
 directive_options_default = dict(format='PNG',
                                  antialias=False,
+                                 fontfamily=None,
                                  fontpath=None,
                                  outputdir=None,
                                  nodoctype=False,
@@ -272,14 +273,15 @@ class BlockdiagDirective(BlockdiagDirectiveBase):
         return nodes.raw('', content, format='html')
 
     def create_fontmap(self):
-        Options = namedtuple('Options', 'font fontmap')
+        Options = namedtuple('Options', 'font fontmap fontfamily')
         fontpath = self.global_options['fontpath']
+        fontfamily = self.global_options['fontfamily']
         if isinstance(fontpath, (list, tuple)):
-            options = Options(fontpath, None)
+            options = Options(fontpath, None, fontfamily)
         elif isinstance(fontpath, str):
-            options = Options([fontpath], None)
+            options = Options([fontpath], None, fontfamily)
         else:
-            options = Options([], None)
+            options = Options([], None, fontfamily)
 
         return create_fontmap(options)
 

@@ -21,7 +21,7 @@ import unittest
 import blockdiag
 from blockdiag.command import BlockdiagOptions
 from blockdiag.tests.utils import with_pdf
-from blockdiag.utils.bootstrap import detectfont
+from blockdiag.utils.bootstrap import create_fontmap, detectfont
 
 
 class TestBootParams(unittest.TestCase):
@@ -153,6 +153,16 @@ class TestBootParams(unittest.TestCase):
                     '-f', '/font_is_not_exist2', 'input.diag']
             options = self.parser.parse(args)
             detectfont(options)
+
+    def test_not_exists_fontfamily_config_option(self):
+        options = self.parser.parse(['input.diag'])
+        fontmap = create_fontmap(options)
+        self.assertEqual(fontmap.default_fontfamily, 'sansserif')
+
+    def test_exists_fontfamily_config_option(self):
+        options = self.parser.parse(['--fontfamily=serif', 'input.diag'])
+        fontmap = create_fontmap(options)
+        self.assertEqual(fontmap.default_fontfamily, 'serif')
 
     def test_no_size_option(self):
         options = self.parser.parse(['input.diag'])
